@@ -2,6 +2,10 @@ const path = require('path');
 
 module.exports = {
   entry: './src/index.ts',
+  target: 'node',
+  externals: [
+    /aws-sdk/, // Available on AWS Lambda 
+  ],
   module: {
     rules: [
       {
@@ -16,6 +20,8 @@ module.exports = {
   },
   output: {
     filename: 'bundle.js',
+    library: 'bundle',
+    libraryTarget: 'commonjs2',
     path: path.resolve(__dirname, 'dist')
   }
 };

@@ -4,6 +4,8 @@ variable "region" {
 }
 
 variable "account_id" {}
+/*
+# Direct input approach
 variable "access_key" {}
 variable "secret_key" {}
 
@@ -14,6 +16,12 @@ provider "aws" {
   secret_key = "${var.secret_key}"
   region     = "${var.region}"
 }
+*/
+provider "aws" {
+  shared_credentials_file = "/home/torben/.aws/creds"
+  profile                 = "personal"
+}
+
 
 # Zip file containing compiled lambda code
 data "archive_file" "lambda" {
@@ -28,7 +36,7 @@ resource "aws_lambda_function" "fitbit_sync" {
   function_name = "fitbit_sync"
   role = "${aws_iam_role.fitbit_sync_api_role.arn}"
   handler = "bundle.handler"
-  runtime = "nodejs6.1"
+  runtime = "nodejs6.10"
   source_code_hash = "${base64sha256(file("${data.archive_file.lambda.output_path}"))}"
   publish = true
 }

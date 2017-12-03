@@ -1,3 +1,4 @@
+module.exports =
 /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -65,8 +66,23 @@
 /************************************************************************/
 /******/ ([
 /* 0 */
-/***/ (function(module, exports) {
+/***/ (function(module, exports, __webpack_require__) {
 
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.handler = (event, context, callback) => {
+    console.log("Event: ");
+    console.log(event);
+    const response = {
+        statusCode: 204,
+        body: JSON.stringify({
+            message: "Hello, world!"
+        })
+    };
+    callback(undefined, response);
+};
+// export { handler } 
 
 
 /***/ })
