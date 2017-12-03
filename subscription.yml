@@ -1,0 +1,54 @@
+swagger: "2.0"
+info:
+  description: "FitBit Subscription Endpoint API"
+  version: "1.0.0"
+  title: "FitBit API"
+schemes:
+- "https"
+paths:
+  /sync/{id}:
+    post:
+      consumes:
+        - application/json
+      parameters:
+        - in: header
+          name: X-Fitbit-Signature
+          type: string
+          required: true
+        - name: id
+          type: string
+          in: path
+          required: true
+        - name: event
+          in: body
+          description: event data
+          schema: 
+            $ref: "#/definitions/FitBitSubscriptionBody"
+      summary: Method called by FitBit subscription API
+      description: Event endpoint for syncing a user
+      responses:
+        204:
+          description: Event sync'd
+definitions:
+  FitBitSubscriptionBody:
+    items:
+      $ref: "#/definitions/FitBitSubscriptionEvent"
+  FitBitSubscriptionEvent:
+    properties:
+      collectionType:
+        type: "string"
+        example: "activities"
+      date:
+        type: "string"
+        format: "date"
+        example: "2017-12-01"
+      ownerId: 
+        type: "string"
+        example: "184X36"
+      ownerType:
+        type: "string"
+        example: "user"
+      subscriptionId:
+        type: "string"
+        format: "uuid"
+        example: "2345"

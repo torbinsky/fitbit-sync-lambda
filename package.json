@@ -1,0 +1,19 @@
+{
+  "name": "fitbit-sync-lambda",
+  "version": "0.0.1",
+  "description": "A lambda function that syncs FitBit data",
+  "main": "dist/bundle.js",
+  "repository": "git@github.com:torbinsky/fitbit-sync-lambda",
+  "author": "Torben Werner",
+  "license": "MIT",
+  "dependencies": {
+    "aws-lambda": "^0.1.2",
+    "typed-rest-client": "^0.15.1"
+  },
+  "devDependencies": {
+    "@types/aws-lambda": "0.0.21",
+    "ts-loader": "^3.2.0",
+    "typescript": "^2.6.2",
+    "webpack": "^3.9.1"
+  }
+}
