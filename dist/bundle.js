@@ -75,7 +75,7 @@ exports.handler = (event, context, callback) => {
     console.log("Event: ");
     console.log(event);
     const response = {
-        statusCode: 204,
+        statusCode: 200,
         body: JSON.stringify({
             message: "Hello, world!"
         })

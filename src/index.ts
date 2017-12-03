@@ -10,7 +10,7 @@ export const handler: Handler = (event: any, context: Context, callback: Callbac
   console.log(event);
 
   const response: HelloResponse = {
-    statusCode: 204,
+    statusCode: 200,
     body: JSON.stringify({
       message: "Hello, world!"
     })

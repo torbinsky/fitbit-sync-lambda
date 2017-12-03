@@ -20,6 +20,7 @@ provider "aws" {
 provider "aws" {
   shared_credentials_file = "/home/torben/.aws/creds"
   profile                 = "personal"
+  region                  = "${var.region}"
 }
 
 
@@ -95,6 +96,15 @@ resource "aws_api_gateway_deployment" "fitbit_sync_deployment_prod" {
   ]
   rest_api_id = "${aws_api_gateway_rest_api.fitbit_sync_api.id}"
   stage_name = "api"
+}
+
+resource "aws_lambda_permission" "apigw_lambda" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = "${aws_lambda_function.fitbit_sync.arn}"
+  principal     = "apigateway.amazonaws.com"
+
+  source_arn = "arn:aws:execute-api:${var.region}:${var.account_id}:${aws_api_gateway_rest_api.fitbit_sync_api.id}/*/${aws_api_gateway_method.fitbit_sync_api_method.http_method}/*"
 }
 
 output "prod_url" {
