@@ -3,7 +3,7 @@ variable "region" {
   default = "us-west-2"
 }
 variable "fitbit_verify_code" {}
-variable "account_id" {}
+data "aws_caller_identity" "current" {}
 
 # Sync state to s3 bucket
 terraform {
@@ -11,7 +11,7 @@ terraform {
     bucket = "fitbit-terraform-state"
     key    = "terraform.tfstate"
     region = "us-west-2"
-   profile = "personal"
+    profile = "personal"
   }
 }
 
@@ -50,6 +50,7 @@ resource "aws_iam_role" "fitbit_sync_api_role" {
   assume_role_policy = "${file("policies/lambda-role.json")}"
 }
 
+
 # API Root
 resource "aws_api_gateway_rest_api" "fitbit_sync_api" {
   name = "FitBitSyncAPI"
@@ -86,7 +87,7 @@ resource "aws_api_gateway_integration" "fitbit_sync_api_method-integration" {
   resource_id = "${aws_api_gateway_resource.user.id}"
   http_method = "${aws_api_gateway_method.fitbit_sync_api_method.http_method}"
   type = "AWS_PROXY"
-  uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.region}:${var.account_id}:function:${aws_lambda_function.fitbit_sync.function_name}/invocations"
+  uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${aws_lambda_function.fitbit_sync.function_name}/invocations"
   integration_http_method = "POST"
 }
 
@@ -106,9 +107,17 @@ resource "aws_api_gateway_integration" "fitbit_sync_verify_api_method-integratio
   resource_id = "${aws_api_gateway_resource.sync.id}"
   http_method = "${aws_api_gateway_method.fitbit_sync_verify_api_method.http_method}"
   type = "AWS_PROXY"
-  uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.region}:${var.account_id}:function:${aws_lambda_function.fitbit_sync.function_name}/invocations"
+  uri = "arn:aws:apigateway:${var.region}:lambda:path/2015-03-31/functions/arn:aws:lambda:${var.region}:${data.aws_caller_identity.current.account_id}:function:${aws_lambda_function.fitbit_sync.function_name}/invocations"
   integration_http_method = "POST"
 }
+
+#Cloudwatch permissions
+resource "aws_iam_role_policy" "cloudwatch-policy" {
+    name   = "cloudwatch-policy"
+    role   = "${aws_iam_role.fitbit_sync_api_role.id}"
+    policy = "${file("policies/lambda-cloudwatch-policy.json")}"
+}
+
 
 # Connect API and Lambda
 resource "aws_api_gateway_deployment" "fitbit_sync_deployment_prod" {
@@ -127,7 +136,7 @@ resource "aws_lambda_permission" "apigw_lambda_sync" {
   function_name = "${aws_lambda_function.fitbit_sync.arn}"
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "arn:aws:execute-api:${var.region}:${var.account_id}:${aws_api_gateway_rest_api.fitbit_sync_api.id}/*/${aws_api_gateway_method.fitbit_sync_api_method.http_method}/*"
+  source_arn = "arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.fitbit_sync_api.id}/*/${aws_api_gateway_method.fitbit_sync_api_method.http_method}/*"
 }
 
 resource "aws_lambda_permission" "apigw_lambda_verify" {
@@ -136,7 +145,7 @@ resource "aws_lambda_permission" "apigw_lambda_verify" {
   function_name = "${aws_lambda_function.fitbit_sync.arn}"
   principal     = "apigateway.amazonaws.com"
 
-  source_arn = "arn:aws:execute-api:${var.region}:${var.account_id}:${aws_api_gateway_rest_api.fitbit_sync_api.id}/*/${aws_api_gateway_method.fitbit_sync_verify_api_method.http_method}/*"
+  source_arn = "arn:aws:execute-api:${var.region}:${data.aws_caller_identity.current.account_id}:${aws_api_gateway_rest_api.fitbit_sync_api.id}/*/${aws_api_gateway_method.fitbit_sync_verify_api_method.http_method}/*"
 }
 
 # Connect API and Lambda
