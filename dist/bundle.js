@@ -71,19 +71,43 @@ module.exports =
 "use strict";
 
 Object.defineProperty(exports, "__esModule", { value: true });
+const process = __webpack_require__(1);
+const fitbitVerificationCode = process.env["fitbit_verify_code"];
 exports.handler = (event, context, callback) => {
-    console.log("Event: ");
-    console.log(event);
-    const response = {
-        statusCode: 200,
-        body: JSON.stringify({
-            message: "Hello, world!"
-        })
+    let response = {
+        statusCode: 204,
+        body: ""
     };
-    callback(undefined, response);
+    // If it's a GET request, then Fitbit is asking us to verify the subscription
+    if (event.httpMethod == "GET") {
+        console.log("Verification requested...");
+        // Verify
+        response.statusCode = 404;
+        if (event.queryStringParameters && fitbitVerificationCode == event.queryStringParameters['verify']) {
+            response.statusCode = 204;
+            console.log("Verification successful!");
+        }
+        else {
+            console.log("Verification failed. Query params were:");
+            console.log(event.queryStringParameters);
+        }
+    }
+    else {
+        // Sync
+        console.log("Body:");
+        console.log(event.body);
+    }
+    if (callback) {
+        callback(null, response);
+    }
 };
-// export { handler } 
 
+
+/***/ }),
+/* 1 */
+/***/ (function(module, exports) {
+
+module.exports = require("process");
 
 /***/ })
 /******/ ]);

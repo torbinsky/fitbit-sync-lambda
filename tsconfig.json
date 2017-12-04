@@ -14,7 +14,10 @@
       "noImplicitReturns": true,
       "preserveConstEnums": true,
       "suppressImplicitAnyIndexErrors": true,
-      "forceConsistentCasingInFileNames": true
+      "forceConsistentCasingInFileNames": true,
+      "typeRoots": [
+        "node_modules/@types"
+      ]
     },
     "exclude": [ "node_modules", "build", "webpack" ],
     "types": [ "typePatches" ]

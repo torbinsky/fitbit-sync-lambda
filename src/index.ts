@@ -1,22 +1,33 @@
-import { Handler, Context, Callback } from 'aws-lambda';
+import { Context, ProxyCallback, ProxyHandler, APIGatewayEvent } from 'aws-lambda';
+import * as process from 'process';
 
-interface HelloResponse {
-  statusCode: number;
-  body: string;
-}
+const fitbitVerificationCode = process.env["fitbit_verify_code"];
 
-export const handler: Handler = (event: any, context: Context, callback: Callback) => {
-  console.log("Event: ");
-  console.log(event);
+export const handler: ProxyHandler = (event: APIGatewayEvent, context: Context, callback?: ProxyCallback) => {
+  let response = {
+    statusCode: 204, // default successful
+    body: ""
+  }
 
-  const response: HelloResponse = {
-    statusCode: 200,
-    body: JSON.stringify({
-      message: "Hello, world!"
-    })
-  };
+  // If it's a GET request, then Fitbit is asking us to verify the subscription
+  if(event.httpMethod == "GET"){
+    console.log("Verification requested...")
+    // Verify
+    response.statusCode = 404;
+    if(event.queryStringParameters && fitbitVerificationCode == event.queryStringParameters['verify']){
+      response.statusCode = 204;
+      console.log("Verification successful!")
+    }else{
+      console.log("Verification failed. Query params were:")
+      console.log(event.queryStringParameters)
+    }
+  }else{
+    // Sync
+    console.log("Body:")
+    console.log(event.body);
+  }
 
-  callback(undefined, response);
+  if(callback){
+    callback(null,response)
+  }
 };
-
-// export { handler }
